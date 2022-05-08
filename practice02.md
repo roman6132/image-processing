@@ -59,7 +59,7 @@ public BufferedImage gammaCorrection(BufferedImage img, double gamma) throws IOE
     return result;
 }
 ```
- <img src="resources/gammaCor/result.jpg" width="500"/>
+ <img src="resources/gammaCorrection/result.jpg" width="500"/>
 
 1. Отобразить по каналам RGB.
 ```
