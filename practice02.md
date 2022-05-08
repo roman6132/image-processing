@@ -96,31 +96,7 @@ public void rgbChannels(BufferedImage img) throws IOException {
  <img src="resources/rgbChannels/blue.jpg" width="500"/>
  
 1. Отобразить поканально разницу между исходным изображением и линеаризованным.
-2. 
-```
-private void difference(BufferedImage img, BufferedImage gCor) throws IOException {
-    int h = img.getHeight();
-    int w = img.getWidth();
-    BufferedImage chR = new BufferedImage(w, h, TYPE_INT_RGB);
-    BufferedImage chG = new BufferedImage(w, h, TYPE_INT_RGB);
-    BufferedImage chB = new BufferedImage(w, h, TYPE_INT_RGB);
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            int orig = img.getRGB(x, y);
-            int corr = gCor.getRGB(x, y);
-            int red = red(orig) - red(corr);
-            int green = green(orig) - green(corr);
-            int blue = blue(orig) - blue(corr);
-            chR.setRGB(x, y, rgb(red, 0, 0));
-            chG.setRGB(x, y, rgb(0, green, 0));
-            chB.setRGB(x, y, rgb(0, 0, blue));
-        }
-    }
-    save(chR, "result/difference", "red", FORMAT);
-    save(chG, "result/difference", "green", FORMAT);
-    save(chB, "result/difference", "blue", FORMAT);
-}
-```
+
 - R
 <img src="resources/difference/red.jpg" width="500"/>
 - G
@@ -131,8 +107,7 @@ private void difference(BufferedImage img, BufferedImage gCor) throws IOExceptio
 1. Написать функцию перевода цветов из линейного RGB в XYZ с использованием матрицы. Найти подходящую библиотечную функцию. Сравнить результаты через построение разностного изоборажения.
 
 ```
-    public BufferedImage RGBtoXYZ(BufferedImage img) throws IOException {
-        //opencv
+  public BufferedImage RGBtoXYZ(BufferedImage img) throws IOException {
         Mat xyzMat = new Mat();
         Imgproc.cvtColor(img2Mat(img), xyzMat, Imgproc.COLOR_BGR2XYZ);
         BufferedImage resultL = (BufferedImage) HighGui.toBufferedImage(xyzMat);
@@ -147,12 +122,13 @@ private void difference(BufferedImage img, BufferedImage gCor) throws IOExceptio
                 result.setRGB(j, i, color(xyz[2], xyz[1], xyz[0]));
             }
         }
-        save(result, "result/RGBtoXYZ", "result", FORMAT);
-        save(resultL, "result/RGBtoXYZ", "resultLib", FORMAT);
-        save(diff(result, resultL), "result/RGBtoXYZ", "diff", FORMAT);
+        save(result, "result/RGBtoXYZ", "custom", FORMAT);
+        save(resultL, "result/RGBtoXYZ", "lib", FORMAT);
+        save(difference(result, resultL), "result/RGBtoXYZ", "difference", FORMAT);
         return result;
     }
-        private static int[] RGBtoXYZ(double r, double g, double b) {
+
+    private static int[] RGBtoXYZ(double r, double g, double b) {
         return new int[]{
                 (int) Math.round(r * 0.412453 + g * 0.357580 + b * 0.180423),
                 (int) Math.round(r * 0.212671 + g * 0.715160 + b * 0.072169),
@@ -161,42 +137,15 @@ private void difference(BufferedImage img, BufferedImage gCor) throws IOExceptio
     }
 ```
 * Ручное преобразование 
-<img src="resources/RGBtoXYZ/result.jpg" width="500"/>
+<img src="resources/RGBtoXYZ/custom.jpg" width="500"/>
 * OpenCV
-<img src="resources/RGBtoXYZ/resultLib.jpg" width="500"/>
-
-Сравнение изображений: 
-```
-    private static BufferedImage diff(BufferedImage imgA, BufferedImage imgB) {
-        int h = imgA.getHeight();
-        int w = imgA.getWidth();
-        BufferedImage result = new BufferedImage(w, h, TYPE_INT_RGB);
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                int colorA = imgA.getRGB(j, i);
-                int colorB = imgB.getRGB(j, i);
-                int r = ch1(colorA) - ch1(colorB);
-                int g = ch2(colorA) - ch2(colorB);
-                int b = ch3(colorA) - ch3(colorB);
-                if (r < 0) r = 0;
-                else if (r > 255) r = 255;
-                if (g < 0) g = 0;
-                else if (g > 255) g = 255;
-                if (b < 0) b = 0;
-                else if (b > 255) b = 255;
-                result.setRGB(j, i, color(r, g, b));
-            }
-        }
-        return result;
-    }
-```
+<img src="resources/RGBtoXYZ/lib.jpg" width="500"/>
 * Разница
-<img src="resources/RGBtoXYZ/diff.jpg" width="500"/>
+<img src="resources/RGBtoXYZ/difference.jpg" width="500"/>
 
 3. Написать функцию перевода цветов из XYZ в RGB (построить обратную матрицу XYZ в RGB). Преобразовать изображение XYZ в линейный RGB. Применить гамма преобразование. Сравнить результаты через построение разностного изоборажения.
 ```
     public BufferedImage XYZtoRGB(BufferedImage img) throws IOException {
-        //opencv
         Mat rgbMat = new Mat();
         Imgproc.cvtColor(img2Mat(img), rgbMat, Imgproc.COLOR_XYZ2BGR);
         BufferedImage resultL = (BufferedImage) HighGui.toBufferedImage(rgbMat);
@@ -212,12 +161,13 @@ private void difference(BufferedImage img, BufferedImage gCor) throws IOExceptio
                 result.setRGB(j, i, rgb);
             }
         }
-        save(result, "result/XYZtoRGB", "result", FORMAT);
-        save(resultL, "result/XYZtoRGB", "resultLib", FORMAT);
-        save(diff(result, resultL), "result/XYZtoRGB", "diff", FORMAT);
+        save(result, "result/XYZtoRGB", "custom", FORMAT);
+        save(resultL, "result/XYZtoRGB", "lib", FORMAT);
+        save(difference(result, resultL), "result/XYZtoRGB", "difference", FORMAT);
         return result;
     }
-        private static int XYZtoRGB(int x, int y, int z) {
+
+    private static int XYZtoRGB(int x, int y, int z) {
         double r = x * 3.240479 + y * -1.537150 + z * -0.498535;
         double g = x * -0.969256 + y * 1.875991 + z * 0.041556;
         double b = x * 0.055648 + y * -0.204043 + z * 1.057311;
@@ -225,11 +175,11 @@ private void difference(BufferedImage img, BufferedImage gCor) throws IOExceptio
     }
 ```
 * Ручное преобразование 
-<img src="resources/XYZtoRGB/result.jpg" width="500"/>
+<img src="resources/XYZtoRGB/custom.jpg" width="500"/>
 * OpenCV
-<img src="resources/XYZtoRGB/resultLib.jpg" width="500"/>
+<img src="resources/XYZtoRGB/lib.jpg" width="500"/>
 * Разница
-<img src="resources/XYZtoRGB/diff.jpg" width="500"/>
+<img src="resources/XYZtoRGB/difference.jpg" width="500"/>
 
 5. Построить проекцию цветов исходного изображения на цветовой локус (плоскость xy).
 ```
@@ -261,11 +211,11 @@ public void loscut(BufferedImage img) throws IOException {
     }
 ```
 <img src="resources/loscut/result.jpg" width="500"/>
+
 7. Написать функцию перевода цветов из линейного RGB в HSV и обратно. Найти подходящую библиотечную функцию. Сравнить результаты через построение разностного изоборажения.
 
 ```
-    public BufferedImage RGBtoHSV(BufferedImage img) throws IOException {
-        //opencv
+   public BufferedImage RGBtoHSV(BufferedImage img) throws IOException {
         Mat hsvMat = new Mat();
         Imgproc.cvtColor(img2Mat(img), hsvMat, Imgproc.COLOR_BGR2HSV);
         BufferedImage resultL = (BufferedImage) HighGui.toBufferedImage(hsvMat);
@@ -280,9 +230,9 @@ public void loscut(BufferedImage img) throws IOException {
                 result.setRGB(j, i, color(hsv[2], hsv[1], hsv[0]));
             }
         }
-        save(result, "result/RGBtoHSV", "result", FORMAT);
-        save(resultL, "result/RGBtoHSV", "resultLib", FORMAT);
-        save(diff(result, resultL), "result/RGBtoHSV", "diff", FORMAT);
+        save(result, "result/RGBtoHSV", "custom", FORMAT);
+        save(resultL, "result/RGBtoHSV", "lib", FORMAT);
+        save(difference(result, resultL), "result/RGBtoHSV", "difference", FORMAT);
         return result;
     }
 
@@ -311,11 +261,11 @@ public void loscut(BufferedImage img) throws IOException {
 
 
 * Ручное преобразование 
-<img src="resources/RGBtoHSV/result.jpg" width="500"/>
+<img src="resources/RGBtoHSV/custom.jpg" width="500"/>
 * OpenCV
-<img src="resources/RGBtoHSV/resultLib.jpg" width="500"/>
+<img src="resources/RGBtoHSV/lib.jpg" width="500"/>
 * Разница
-<img src="resources/RGBtoHSV/diff.jpg" width="500"/>
+<img src="resources/RGBtoHSV/difference.jpg" width="500"/>
 
 
 ```
@@ -335,9 +285,9 @@ public void loscut(BufferedImage img) throws IOException {
                 result.setRGB(j, i, rgb);
             }
         }
-        save(result, "result/HSVtoRGB", "result", FORMAT);
-        save(resultL, "result/HSVtoRGB", "resultLib", FORMAT);
-        save(diff(result, resultL), "result/HSVtoRGB", "diff", FORMAT);
+        save(result, "result/HSVtoRGB", "custom", FORMAT);
+        save(resultL, "result/HSVtoRGB", "lib", FORMAT);
+        save(difference(result, resultL), "result/HSVtoRGB", "difference", FORMAT);
         return result;
     }
 
@@ -397,8 +347,34 @@ public void loscut(BufferedImage img) throws IOException {
 
 
 * Ручное преобразование 
-<img src="resources/HSVtoRGB/result.jpg" width="500"/>
+<img src="resources/HSVtoRGB/custom.jpg" width="500"/>
 * OpenCV
-<img src="resources/HSVtoRGB/resultLib.jpg" width="500"/>
+<img src="resources/HSVtoRGB/lib.jpg" width="500"/>
 * Разница
-<img src="resources/HSVtoRGB/diff.jpg" width="500"/>
+<img src="resources/HSVtoRGB/difference.jpg" width="500"/>
+
+Разница между изображениями: 
+```
+private void difference(BufferedImage img, BufferedImage gCor) throws IOException {
+    int h = img.getHeight();
+    int w = img.getWidth();
+    BufferedImage chR = new BufferedImage(w, h, TYPE_INT_RGB);
+    BufferedImage chG = new BufferedImage(w, h, TYPE_INT_RGB);
+    BufferedImage chB = new BufferedImage(w, h, TYPE_INT_RGB);
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            int orig = img.getRGB(x, y);
+            int corr = gCor.getRGB(x, y);
+            int red = red(orig) - red(corr);
+            int green = green(orig) - green(corr);
+            int blue = blue(orig) - blue(corr);
+            chR.setRGB(x, y, rgb(red, 0, 0));
+            chG.setRGB(x, y, rgb(0, green, 0));
+            chB.setRGB(x, y, rgb(0, 0, blue));
+        }
+    }
+    save(chR, "result/difference", "red", FORMAT);
+    save(chG, "result/difference", "green", FORMAT);
+    save(chB, "result/difference", "blue", FORMAT);
+}
+```
