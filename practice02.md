@@ -3,10 +3,10 @@
 
 1. Скачать любое цифровое изображение. Желательно многоцветное
     Исходное изображение:
-    <img src="resources/image.jpg" width="500"/>
+    <img src="resources/picture.jpg" width="500"/>
 1. Отобразить изображение по каналам RGB (каждый канал представить как градации серого).
 ```
-public void channels(BufferedImage img) throws IOException {
+public void channelsGray(BufferedImage img) throws IOException {
     int h = img.getHeight();
     int w = img.getWidth();
     BufferedImage chR = new BufferedImage(w, h, TYPE_INT_RGB);
@@ -23,19 +23,19 @@ public void channels(BufferedImage img) throws IOException {
             chB.setRGB(x, y, rgb(blue, blue, blue));
         }
     }
-    save(chR, "result/channels", "r", FORMAT);
-    save(chG, "result/channels", "g", FORMAT);
-    save(chB, "result/channels", "b", FORMAT);
+    save(chR, "result/channelsGray", "red", FORMAT);
+    save(chG, "result/channelsGray", "green", FORMAT);
+    save(chB, "result/channelsGray", "blue", FORMAT);
 }
 ```
 Результат: 
 
 - Red:
- <img src="resources/channels/r.jpg" width="500"/>
+ <img src="resources/channelsGray/red.jpg" width="500"/>
 - Green:
- <img src="resources/channels/g.jpg" width="500"/>
+ <img src="resources/channelsGray/gren.jpg" width="500"/>
 - Blue:
- <img src="resources/channels/b.jpg" width="500"/>
+ <img src="resources/channelsGray/blue.jpg" width="500"/>
 
 
 1. Лианеризовать изображение обратным гамма преобразованием.
@@ -58,7 +58,7 @@ public BufferedImage gammaCorrection(BufferedImage img, double gamma) throws IOE
             result.setRGB(x, y, rgb(red, green, blue));
         }
     }
-    save(result, "result/gammaCor", "result", FORMAT);
+    save(result, "result/gammaCorrection", "result", FORMAT);
     return result;
 }
 ```
@@ -83,17 +83,17 @@ public void rgbChannels(BufferedImage img) throws IOException {
             chB.setRGB(x, y, rgb(0, 0, blue));
         }
     }
-    save(chR, "result/rgbChannels", "r", FORMAT);
-    save(chG, "result/rgbChannels", "g", FORMAT);
-    save(chB, "result/rgbChannels", "b", FORMAT);
+    save(chR, "result/rgbChannels", "red", FORMAT);
+    save(chG, "result/rgbChannels", "green", FORMAT);
+    save(chB, "result/rgbChannels", "blue", FORMAT);
 }
 ```
  - R
- <img src="resources/rgbChannels/r.jpg" width="500"/>
+ <img src="resources/rgbChannels/red.jpg" width="500"/>
  - G
- <img src="resources/rgbChannels/g.jpg" width="500"/>
+ <img src="resources/rgbChannels/green.jpg" width="500"/>
  - B
- <img src="resources/rgbChannels/b.jpg" width="500"/>
+ <img src="resources/rgbChannels/blue.jpg" width="500"/>
  
 1. Отобразить поканально разницу между исходным изображением и линеаризованным.
 2. 
@@ -116,17 +116,17 @@ private void difference(BufferedImage img, BufferedImage gCor) throws IOExceptio
             chB.setRGB(x, y, rgb(0, 0, blue));
         }
     }
-    save(chR, "result/difference", "r", FORMAT);
-    save(chG, "result/difference", "g", FORMAT);
-    save(chB, "result/difference", "b", FORMAT);
+    save(chR, "result/difference", "red", FORMAT);
+    save(chG, "result/difference", "green", FORMAT);
+    save(chB, "result/difference", "blue", FORMAT);
 }
 ```
 - R
-<img src="resources/difference/r.jpg" width="500"/>
+<img src="resources/difference/red.jpg" width="500"/>
 - G
-<img src="resources/difference/g.jpg" width="500"/>
+<img src="resources/difference/green.jpg" width="500"/>
 - B
-<img src="resources/difference/b.jpg" width="500"/>
+<img src="resources/difference/blue.jpg" width="500"/>
 
 1. Написать функцию перевода цветов из линейного RGB в XYZ с использованием матрицы. Найти подходящую библиотечную функцию. Сравнить результаты через построение разностного изоборажения.
 
