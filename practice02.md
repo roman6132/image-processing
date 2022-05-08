@@ -30,12 +30,9 @@ public void channelsGray(BufferedImage img) throws IOException {
 ```
 Результат: 
 
-- Red:
- <img src="resources/channelsGray/red.jpg" width="500"/>
-- Green:
- <img src="resources/channelsGray/gren.jpg" width="500"/>
-- Blue:
- <img src="resources/channelsGray/blue.jpg" width="500"/>
+Red | Green | Blue
+------ | ------|----------
+<img src="resources/channelsGray/red.jpg" width="400"/>      |  <img src="resources/channelsGray/green.jpg" width="400"/>    |  <img src="resources/channelsGray/blue.jpg" width="400"/>
 
 
 1. Лианеризовать изображение обратным гамма преобразованием.
@@ -88,21 +85,17 @@ public void rgbChannels(BufferedImage img) throws IOException {
     save(chB, "result/rgbChannels", "blue", FORMAT);
 }
 ```
- - R
- <img src="resources/rgbChannels/red.jpg" width="500"/>
- - G
- <img src="resources/rgbChannels/green.jpg" width="500"/>
- - B
- <img src="resources/rgbChannels/blue.jpg" width="500"/>
+
+Red | Green | Blue
+------ | ------|----------
+ <img src="resources/rgbChannels/red.jpg" width="400"/>      |   <img src="resources/rgbChannels/green.jpg" width="400"/>   |   <img src="resources/rgbChannels/blue.jpg" width="400"/>
  
 1. Отобразить поканально разницу между исходным изображением и линеаризованным.
 
-- R
-<img src="resources/difference/red.jpg" width="500"/>
-- G
-<img src="resources/difference/green.jpg" width="500"/>
-- B
-<img src="resources/difference/blue.jpg" width="500"/>
+Red | Green | Blue
+------ | ------|----------
+ <img src="resources/difference/red.jpg" width="400"/>      |   <img src="resources/difference/green.jpg" width="400"/>   |   <img src="resources/difference/blue.jpg" width="400"/>
+
 
 1. Написать функцию перевода цветов из линейного RGB в XYZ с использованием матрицы. Найти подходящую библиотечную функцию. Сравнить результаты через построение разностного изоборажения.
 
@@ -136,12 +129,9 @@ public void rgbChannels(BufferedImage img) throws IOException {
         };
     }
 ```
-* Ручное преобразование 
-<img src="resources/RGBtoXYZ/custom.jpg" width="500"/>
-* OpenCV
-<img src="resources/RGBtoXYZ/lib.jpg" width="500"/>
-* Разница
-<img src="resources/RGBtoXYZ/difference.jpg" width="500"/>
+Custom | OpenCV | difference
+------ | ------|----------
+<img src="resources/RGBtoXYZ/custom.jpg" width="400"/>     |  <img src="resources/RGBtoXYZ/lib.jpg" width="400"/>  |   <img src="resources/RGBtoXYZ/difference.jpg" width="400"/>
 
 3. Написать функцию перевода цветов из XYZ в RGB (построить обратную матрицу XYZ в RGB). Преобразовать изображение XYZ в линейный RGB. Применить гамма преобразование. Сравнить результаты через построение разностного изоборажения.
 ```
@@ -174,12 +164,10 @@ public void rgbChannels(BufferedImage img) throws IOException {
         return color(r, g, b);
     }
 ```
-* Ручное преобразование 
-<img src="resources/XYZtoRGB/custom.jpg" width="500"/>
-* OpenCV
-<img src="resources/XYZtoRGB/lib.jpg" width="500"/>
-* Разница
-<img src="resources/XYZtoRGB/difference.jpg" width="500"/>
+
+Custom | OpenCV | difference
+------ | ------|----------
+<img src="resources/XYZtoRGB/custom.jpg" width="400"/>     |  <img src="resources/XYZtoRGB/lib.jpg" width="400"/>  |   <img src="resources/XYZtoRGB/difference.jpg" width="400"/>
 
 5. Построить проекцию цветов исходного изображения на цветовой локус (плоскость xy).
 ```
@@ -258,15 +246,9 @@ public void loscut(BufferedImage img) throws IOException {
         return new double[]{h / 2, s * 255, v * 255};
     }
 ```
-
-
-* Ручное преобразование 
-<img src="resources/RGBtoHSV/custom.jpg" width="500"/>
-* OpenCV
-<img src="resources/RGBtoHSV/lib.jpg" width="500"/>
-* Разница
-<img src="resources/RGBtoHSV/difference.jpg" width="500"/>
-
+Custom | OpenCV | difference
+------ | ------|----------
+<img src="resources/RGBtoHSV/custom.jpg" width="400"/>     |  <img src="resources/RGBtoHSV/lib.jpg" width="400"/>  |   <img src="resources/RGBtoHSV/difference.jpg" width="400"/>
 
 ```
     public BufferedImage HSVtoRGB(BufferedImage img) throws IOException {
@@ -344,14 +326,9 @@ public void loscut(BufferedImage img) throws IOException {
         return color(R, G, B);
     }
 ```
-
-
-* Ручное преобразование 
-<img src="resources/HSVtoRGB/custom.jpg" width="500"/>
-* OpenCV
-<img src="resources/HSVtoRGB/lib.jpg" width="500"/>
-* Разница
-<img src="resources/HSVtoRGB/difference.jpg" width="500"/>
+Custom | OpenCV | difference
+------ | ------|----------
+<img src="resources/HSVtoRGB/custom.jpg" width="400"/>     |  <img src="resources/HSVtoRGB/lib.jpg" width="400"/>  |   <img src="resources/HSVtoRGB/difference.jpg" width="400"/>
 
 Разница между изображениями: 
 ```
