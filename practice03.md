@@ -3,11 +3,11 @@
 План работ:
 1. Скачать любое цифровое изображение. Желательно многоцветное
     Исходное изображение:
-    <img src="resources/image.jpg" width="500"/>
+    <img src="resources/picture.jpg" width="500"/>
 
 2. Применить к исходному изображению Гауссово размытие. Отобразить результат.
 
-
+[/result/sharpLib1/result.jpg](resources/GaussBlur.java)
 
   
 <img src="resources/gaussian/result.jpg" width="500"/>
