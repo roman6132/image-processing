@@ -25,7 +25,7 @@ cv2.destroyAllWindows()
 
 <img src="resources/web.jpg" width="500"/>
 
-1. Создание алгоритма "байеризации"
+4. Создание алгоритма "байеризации"
 
 ```
 import rawpy
@@ -139,10 +139,10 @@ if __name__ == '__main__':
 <img src="resources/b1.jpg" width="500"/>
 <img src="resources/b2.jpg" width="500"/>
 
-1. Выбор изображения для работы
+5. Выбор изображения для работы
   C https://www.signatureedits.com/free-raw-photos/
   
-1. Реализация суперпикселей. 
+6. Реализация суперпикселей. 
 ```
 import cv2
 import numpy as np
@@ -161,7 +161,7 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 <img src="resources/super.jpg" width="500"/>
-1. Реализация билинейной интерполяции.
+7. Реализация билинейной интерполяции.
 
 ```
 def BiLinear_interpolation(img,dstH,dstW):
@@ -182,7 +182,7 @@ def BiLinear_interpolation(img,dstH,dstW):
 
 <img src="resources/int.jpg" width="500"/>
 
-1. Реализация алгоритма VNG.
+8. Реализация алгоритма VNG.
 ```
 bayer = cv2.imread(r'blw.tif', -1)
 fig = plt.figure(figsize=(8,8))
