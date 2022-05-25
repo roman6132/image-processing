@@ -139,10 +139,10 @@ if __name__ == '__main__':
 <img src="resources/b1.jpg" width="500"/>
 <img src="resources/b2.jpg" width="500"/>
 
-3. Выбор изображения для работы
+1. Выбор изображения для работы
   C https://www.signatureedits.com/free-raw-photos/
   
-3. Реализация суперпикселей. Аналоги библиотек
+1. Реализация суперпикселей. 
 ```
 import cv2
 import numpy as np
@@ -161,7 +161,7 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 <img src="resources/super.jpg" width="500"/>
-3. Реализация билинейной интерполяции. Аналоги библиотек
+1. Реализация билинейной интерполяции.
 
 ```
 def BiLinear_interpolation(img,dstH,dstW):
@@ -182,7 +182,7 @@ def BiLinear_interpolation(img,dstH,dstW):
 
 <img src="resources/int.jpg" width="500"/>
 
-3. Реализация алгоритма VNG. Аналоги библиотек
+1. Реализация алгоритма VNG.
 ```
 bayer = cv2.imread(r'blw.tif', -1)
 fig = plt.figure(figsize=(8,8))
