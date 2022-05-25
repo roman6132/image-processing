@@ -1,11 +1,11 @@
 
-## Лабораторная работа 5. Баланс белого.
+## Лабораторная работа 5. Баланс белого
 
 План работ:
-1. Скачать цветное изображение по выбору с нарушенным цветовым балансом (желательно, чтобы на изображении был объект предположительно белого цвета).
-<img src="resources/orig.jpg" width="500"/>
+### Скачать цветное изображение по выбору с нарушенным цветовым балансом (желательно, чтобы на изображении был объект предположительно белого цвета).
+<img src="resources/orig.jpg" width="600"/>
 
-2. Определить вручную цвет объекта, построить преобразование (матрицу 3х3) для коррекции белого.
+### Определить вручную цвет объекта, построить преобразование (матрицу 3х3) для коррекции белого.
  Применить к изображению. Не забудьте про нормировку яркости (если она будет нужна).
 
 ```
@@ -36,9 +36,9 @@ private void whiteBalance(BufferedImage img) throws IOException {
 }
 ```
 
-<img src="resources/whiteBalance.jpg" width="500"/>
+<img src="resources/whiteBalance.jpg" width="600"/>
 
-3. Исходное изображение скорректировать согласно теории Серого мира вручную.
+### Исходное изображение скорректировать согласно теории Серого мира вручную.
 
 ```
     private void grayWorld(BufferedImage img) throws IOException {
@@ -80,9 +80,9 @@ private void whiteBalance(BufferedImage img) throws IOException {
     }
 ```
 
-<img src="resources/grayWorld.jpg" width="500"/>
+<img src="resources/grayWorld.jpg" width="600"/>
 
-4. Исходное изображение скорректировать согласно теории Серого мира при помощи библиотечной функции.
+### Исходное изображение скорректировать согласно теории Серого мира при помощи библиотечной функции.
 
 ```
     private void grayWorldLib(BufferedImage img) throws IOException {
@@ -94,6 +94,5 @@ private void whiteBalance(BufferedImage img) throws IOException {
     }
 ```
 
-<img src="resources/grayWorldLib.jpg" width="500"/>
+<img src="resources/grayWorldLib.jpg" width="600"/>
 
-7. Все результаты вывести на экран рядом для визуального сравнения.
