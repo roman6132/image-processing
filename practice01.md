@@ -8,16 +8,11 @@
 import cv2
 
 cap = cv2.VideoCapture(0)
-
 if not cap.isOpened():
 	raise IOError("Cannot open webcam")
-
 ret, frame = cap.read()
-
 frame = cv2.resize(frame, None, 3, 3, cv2.INTER_AREA)
-cv2.imwrite("screen.jpg", frame)
-print("Successfully saved")
-
+cv2.imwrite("camera.jpg", frame)
 cap.release()
 cv2.destroyAllWindows()
 
@@ -130,10 +125,10 @@ def pack_raw(raw_path, white_balance=True, auto_bright=True, HDR=True, save_JPEG
     return out
 
 if __name__ == '__main__':
-    raw = rawpy.imread('tum.ARW')
-    np_channel = pack_raw('tum.ARW', auto_bright=False, HDR=False)
+    raw = rawpy.imread('photo.ARW')
+    np_channel = pack_raw('photo.ARW', auto_bright=False, HDR=False)
     img = raw.postprocess(use_camera_wb=True, half_size=False, no_auto_bright=True, output_bps=16)
-    imageio.imsave('rawpy.jpg', img)
+    imageio.imsave('photonew.jpg', img)
 
 ```
 <img src="resources/b1.jpg" width="500"/>
@@ -146,7 +141,7 @@ if __name__ == '__main__':
 ```
 import cv2
 import numpy as np
-img = cv2.imread("swin.jpg")
+img = cv2.imread("sp.jpg")
 region_size=20
 ruler = 20.0
 slic = cv2.ximgproc.createSuperpixelSLIC(img,region_size,ruler)
@@ -184,7 +179,9 @@ def BiLinear_interpolation(img,dstH,dstW):
 
 8. Реализация алгоритма VNG.
 ```
-bayer = cv2.imread(r'blw.tif', -1)
+import cv2
+import matplotlib.pyplot as plt
+bayer = cv2.imread(r'vng.tif', -1)
 fig = plt.figure(figsize=(8,8))
 plt.imshow(bayer, cmap='gray')
 plt.title('Input Image')
