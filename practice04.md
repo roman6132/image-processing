@@ -10,11 +10,11 @@
 
 ```
 private void whiteBalance(BufferedImage img) throws IOException {
-    float[][] m = {
-            {255/222f, 0, 0},
-            {0, 255/243f, 0},
-            {0, 0, 255/255f}
-    };
+        float[][] m = {
+                {255/233f, 0, 0},
+                {0, 255/238f, 0},
+                {0, 0, 255/231f}
+        };
     int h = img.getHeight();
     int w = img.getWidth();
     BufferedImage result = new BufferedImage(w, h, TYPE_INT_RGB);
