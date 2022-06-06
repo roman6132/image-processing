@@ -29,15 +29,53 @@ from PIL import Image
 import imageio
 import exifread
 
-def gray_ps(rgb):
-    return np.power(np.power(rgb[:, :, 0], 2.2) * 0.2973 + np.power(rgb[:, :, 1], 2.2) * 0.6274
-                    + np.power(rgb[:, :, 2], 2.2) * 0.0753, 1 / 2.2) + 1e-7
-
-def do_HDR(x, curve_ratio):
-    gray_scale = np.expand_dims(gray_ps(x), axis=-1)
-    gray_scale_new = np.power(gray_scale, curve_ratio)
-    return np.minimum(x * gray_scale_new / gray_scale, 1.0)
-
+def pack_raw(raw_path):
+    raw = rawpy.imread(raw_path)
+    im = raw.raw_image_visible.astype(np.float32)
+    im = np.maximum(im - raw.black_level_per_channel[0], 0) / (16383 - raw.black_level_per_channel[0])
+    im = np.expand_dims(im, axis=2)
+    
+    H = im.shape[0]
+    W = im.shape[1]
+    # RGGB
+    if raw.raw_pattern[0, 0] == 0:  
+        out = np.concatenate((im[0:H:2, 0:W:2, :],
+                              im[0:H:2, 1:W:2, :],
+                              im[1:H:2, 1:W:2, :],
+                              im[1:H:2, 0:W:2, :]), axis=2)
+    # BGGR 
+    elif raw.raw_pattern[0, 0] == 2:  
+        out = np.concatenate((im[1:H:2, 1:W:2, :],
+                              im[0:H:2, 1:W:2, :],
+                              im[0:H:2, 0:W:2, :],
+                              im[1:H:2, 0:W:2, :]), axis=2)
+    # GRBG                          
+    elif raw.raw_pattern[0, 0] == 1 and raw.raw_pattern[0, 1] == 0: 
+        out = np.concatenate((im[0:H:2, 1:W:2, :],
+                              im[0:H:2, 0:W:2, :],
+                              im[1:H:2, 0:W:2, :],
+                              im[1:H:2, 1:W:2, :]), axis=2)
+    # GBRG
+    elif raw.raw_pattern[0, 0] == 1 and raw.raw_pattern[0, 1] == 2: 
+        out = np.concatenate((im[1:H:2, 0:W:2, :],
+                              im[0:H:2, 0:W:2, :],
+                              im[0:H:2, 1:W:2, :],
+                              im[1:H:2, 1:W:2, :]), axis=2)
+ 
+    wb = np.array(raw.camera_whitebalance, np.float32)
+    wb[3] = wb[1]
+    wb = wb / wb[1]
+    out = np.minimum(out * wb, 1.0)
+    out = adjust_out_matrix(raw_path, out)
+    
+    out0 = out[:, :, 0:1]
+    out1 = out[:, :, 1:2]
+    out2 = out[:, :, 2:3]
+    out3 = out[:, :, 3:4]
+    out_JPEG = np.concatenate((out0, (out1 + out3) / 2., out2), axis=2)      
+    Image.fromarray(np.uint8(out_JPEG * 255)).save('res.jpg')
+    return out
+    
 def adjust_out_matrix(RAW_path, out=None):
     raw = open(RAW_path, 'rb')
     exif_info = exifread.process_file(raw, details=False, strict=True)
@@ -71,62 +109,17 @@ def adjust_out_matrix(RAW_path, out=None):
             return out
     else:
         raise
-
-def pack_raw(raw_path, white_balance=True, auto_bright=True, HDR=True, save_JPEG=True):
-    raw = rawpy.imread(raw_path)
-    im = raw.raw_image_visible.astype(np.float32)
-
-    # subtract the black level
-    # 16383(2^14) is the camera's maximal pixel value, you can get it by "np.max(raw.raw_image)" . Ensure full exposure!
-    im = np.maximum(im - raw.black_level_per_channel[0], 0) / (16383 - raw.black_level_per_channel[0])
-
-    im = np.expand_dims(im, axis=2)
-    H = im.shape[0]
-    W = im.shape[1]
-
-    if raw.raw_pattern[0, 0] == 0:  # RGGB
-        out = np.concatenate((im[0:H:2, 0:W:2, :],
-                              im[0:H:2, 1:W:2, :],
-                              im[1:H:2, 1:W:2, :],
-                              im[1:H:2, 0:W:2, :]), axis=2)
-    elif raw.raw_pattern[0, 0] == 2:  # BGGR
-        out = np.concatenate((im[1:H:2, 1:W:2, :],
-                              im[0:H:2, 1:W:2, :],
-                              im[0:H:2, 0:W:2, :],
-                              im[1:H:2, 0:W:2, :]), axis=2)
-    elif raw.raw_pattern[0, 0] == 1 and raw.raw_pattern[0, 1] == 0:  # GRBG
-        out = np.concatenate((im[0:H:2, 1:W:2, :],
-                              im[0:H:2, 0:W:2, :],
-                              im[1:H:2, 0:W:2, :],
-                              im[1:H:2, 1:W:2, :]), axis=2)
-    elif raw.raw_pattern[0, 0] == 1 and raw.raw_pattern[0, 1] == 2:  # GBRG
-        out = np.concatenate((im[1:H:2, 0:W:2, :],
-                              im[0:H:2, 0:W:2, :],
-                              im[0:H:2, 1:W:2, :],
-                              im[1:H:2, 1:W:2, :]), axis=2)
-    if white_balance:
-        wb = np.array(raw.camera_whitebalance, np.float32)
-        wb[3] = wb[1]
-        wb = wb / wb[1]
-        out = np.minimum(out * wb, 1.0)
-    if auto_bright:
-        mean_G = (out[:, :, 1].mean() + out[:, :, 3].mean()) / 2.0
-        out = np.minimum(out*0.2/mean_G, 1.0)
-    out = adjust_out_matrix(raw_path, out)
-    if save_JPEG:
-        out0 = out[:, :, 0:1]
-        out1 = out[:, :, 1:2]
-        out2 = out[:, :, 2:3]
-        out3 = out[:, :, 3:4]
-        out_JPEG = np.concatenate((out0, (out1 + out3) / 2., out2), axis=2)
-        if HDR:
-            out_JPEG = do_HDR(out_JPEG, 0.35)
-        Image.fromarray(np.uint8(out_JPEG * 255)).save('result.jpg')
-    return out
+def do_HDR(x, curve_ratio):
+    gray_scale = np.expand_dims(gray_ps(x), axis=-1)
+    gray_scale_new = np.power(gray_scale, curve_ratio)
+    return np.minimum(x * gray_scale_new / gray_scale, 1.0)  
+    
+def gray_ps(rgb):
+    return np.power(np.power(rgb[:, :, 0], 2.2) * 0.2967 + np.power(rgb[:, :, 1], 2.2) * 0.6281
+                    + np.power(rgb[:, :, 2], 2.2) * 0.0741, 1 / 2.2) + 1e-7
 
 if __name__ == '__main__':
-    raw = rawpy.imread('photo.ARW')
-    np_channel = pack_raw('photo.ARW', auto_bright=False, HDR=False)
+    raw = rawpy.imread('photo.arw')
     img = raw.postprocess(use_camera_wb=True, half_size=False, no_auto_bright=True, output_bps=16)
     imageio.imsave('photonew.jpg', img)
 
@@ -142,7 +135,7 @@ if __name__ == '__main__':
 import cv2
 import numpy as np
 img = cv2.imread("sp.jpg")
-region_size=20
+region_size=18
 ruler = 20.0
 slic = cv2.ximgproc.createSuperpixelSLIC(img,region_size,ruler)
 slic.iterate(10) 
@@ -159,16 +152,18 @@ cv2.destroyAllWindows()
 7. Реализация билинейной интерполяции.
 
 ```
-def BiLinear_interpolation(img,dstH,dstW):
+def BLI(img,height,width):
     scrH,scrW,_=img.shape
     img=np.pad(img,((0,1),(0,1),(0,0)),'constant')
-    retimg=np.zeros((dstH,dstW,3),np.uint8)
-    for i in range(dstH):
-        for j in range(dstW):
-            scrx=(i+1)*(scrH/dstH)-1
-            scry=(j+1)*(scrW/dstW)-1
+    retimg=np.zeros((height,width,3),np.uint8)
+    for i in range(height):
+        for j in range(width):
+            scrx=(i+1)*(scrH/height)-1
+            scry=(j+1)*(scrW/width)-1
+	    
             x=math.floor(scrx)
             y=math.floor(scry)
+	    
             u=scrx-x
             v=scry-y
             retimg[i,j]=(1-u)*(1-v)*img[x,y]+u*(1-v)*img[x+1,y]+(1-u)*v*img[x,y+1]+u*v*img[x+1,y+1]
