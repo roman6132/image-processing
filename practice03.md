@@ -9,12 +9,14 @@
 
 2. Применить к исходному изображению Гауссово размытие. Отобразить результат.
 
+
+```
  public BufferedImage gaussian(BufferedImage picture) throws IOException {
         BufferedImage result = new GaussBlur().process(picture);
         save(result, "result/gauss", "result", FORMAT);
         return result;
     }
-
+```
 [GaussBlur](resources/GaussBlur.java)
 
   
