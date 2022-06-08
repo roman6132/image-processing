@@ -238,73 +238,72 @@ Custom | OpenCV | difference
 <img src="resources/RGBtoHSV/custom.jpg" width="400"/>     |  <img src="resources/RGBtoHSV/lib.jpg" width="400"/>  |   <img src="resources/RGBtoHSV/difference.jpg" width="400"/>
 
 ```
-    public BufferedImage HSVtoRGB(BufferedImage img) throws IOException {
-        //opencv
-        Mat rgbMat = new Mat();
-        Imgproc.cvtColor(img2Mat(img), rgbMat, Imgproc.COLOR_HSV2BGR);
-        BufferedImage resultL = (BufferedImage) HighGui.toBufferedImage(rgbMat);
-
-        int h = img.getHeight();
-        int w = img.getWidth();
-        BufferedImage result = new BufferedImage(w, h, TYPE_INT_RGB);
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                int color = img.getRGB(j, i);
+    public BufferedImage HSVtoRGB(BufferedImage picture) throws IOException {
+        Mat rgbOpenCV = new Mat();
+        Imgproc.cvtColor(img2Mat(picture), rgbOpenCV, Imgproc.COLOR_HSV2BGR);
+        BufferedImage resultLib = (BufferedImage) HighGui.toBufferedImage(rgbOpenCV);
+        int height = picture.getHeight();
+        int width = picture.getWidth();
+        BufferedImage custom = new BufferedImage(width, height, TYPE_INT_RGB);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int color = picture.getRGB(j, i);
                 int rgb = HSVtoRGB(ch3(color), ch2(color), ch1(color));
-                result.setRGB(j, i, rgb);
+                custom.setRGB(j, i, rgb);
             }
         }
-        save(result, "result/HSVtoRGB", "custom", FORMAT);
-        save(resultL, "result/HSVtoRGB", "lib", FORMAT);
-        save(difference(result, resultL), "result/HSVtoRGB", "difference", FORMAT);
-        return result;
+        save(custom, "result/HSVtoRGB", "custom", FORMAT);
+        save(resultLib, "result/HSVtoRGB", "lib", FORMAT);
+        save(difference(custom, resultLib), "result/HSVtoRGB", "difference", FORMAT);
+        return custom;
     }
 
-    public static int HSVtoRGB(float H, float S, float V) {
+    public static int HSVtoRGB(float hue, float saturation, float value) {
         float R, G, B;
-        H /= 180f;
-        S /= 255f;
-        V /= 255f;
-        if (S == 0) {
-            R = V * 255;
-            G = V * 255;
-            B = V * 255;
-        } else {
-            float var_h = H * 6;
+        hue = hue/180f;
+        saturation = saturation/255f;
+        value = value/255f;
+        if (saturation == 0) {
+            R = value * 255;
+            G = value * 255;
+            B = value * 255;
+        } else
+            {
+            float var_h = hue * 6;
             if (var_h == 6) {
                 var_h = 0;
             }
             int var_i = (int) Math.floor(var_h);
-            float var_1 = V * (1 - S);
-            float var_2 = V * (1 - S * (var_h - var_i));
-            float var_3 = V * (1 - S * (1 - (var_h - var_i)));
+            float p = value * (1 - saturation);
+            float q = value * (1 - saturation * (var_h - var_i));
+            float t = value * (1 - saturation * (1 - (var_h - var_i)));
             float var_r;
             float var_g;
             float var_b;
             if (var_i == 0) {
-                var_r = V;
-                var_g = var_3;
-                var_b = var_1;
+                var_r = value;
+                var_g = t;
+                var_b = p;
             } else if (var_i == 1) {
-                var_r = var_2;
-                var_g = V;
-                var_b = var_1;
+                var_r = q;
+                var_g = value;
+                var_b = p;
             } else if (var_i == 2) {
-                var_r = var_1;
-                var_g = V;
-                var_b = var_3;
+                var_r = p;
+                var_g = value;
+                var_b = t;
             } else if (var_i == 3) {
-                var_r = var_1;
-                var_g = var_2;
-                var_b = V;
+                var_r = p;
+                var_g = q;
+                var_b = value;
             } else if (var_i == 4) {
-                var_r = var_3;
-                var_g = var_1;
-                var_b = V;
+                var_r = t;
+                var_g = p;
+                var_b = value;
             } else {
-                var_r = V;
-                var_g = var_1;
-                var_b = var_2;
+                var_r = value;
+                var_g = p;
+                var_b = q;
             }
             R = var_r * 255;
             G = var_g * 255;
@@ -317,28 +316,3 @@ Custom | OpenCV | difference
 ------ | ------|----------
 <img src="resources/HSVtoRGB/custom.jpg" width="400"/>     |  <img src="resources/HSVtoRGB/lib.jpg" width="400"/>  |   <img src="resources/HSVtoRGB/difference.jpg" width="400"/>
 
-Разница между изображениями: 
-```
-private void difference(BufferedImage img, BufferedImage gCor) throws IOException {
-    int h = img.getHeight();
-    int w = img.getWidth();
-    BufferedImage chR = new BufferedImage(w, h, TYPE_INT_RGB);
-    BufferedImage chG = new BufferedImage(w, h, TYPE_INT_RGB);
-    BufferedImage chB = new BufferedImage(w, h, TYPE_INT_RGB);
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            int orig = img.getRGB(x, y);
-            int corr = gCor.getRGB(x, y);
-            int red = red(orig) - red(corr);
-            int green = green(orig) - green(corr);
-            int blue = blue(orig) - blue(corr);
-            chR.setRGB(x, y, rgb(red, 0, 0));
-            chG.setRGB(x, y, rgb(0, green, 0));
-            chB.setRGB(x, y, rgb(0, 0, blue));
-        }
-    }
-    save(chR, "result/difference", "red", FORMAT);
-    save(chG, "result/difference", "green", FORMAT);
-    save(chB, "result/difference", "blue", FORMAT);
-}
-```
