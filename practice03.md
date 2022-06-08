@@ -9,6 +9,12 @@
 
 2. Применить к исходному изображению Гауссово размытие. Отобразить результат.
 
+ public BufferedImage gaussian(BufferedImage picture) throws IOException {
+        BufferedImage result = new GaussBlur().process(picture);
+        save(result, "result/gauss", "result", FORMAT);
+        return result;
+    }
+
 [GaussBlur](resources/GaussBlur.java)
 
   
@@ -19,21 +25,21 @@
   Данная функция применяет Гауссово размытие повторно и вычитает результат из оригинального изображения. Таким образом получается "маска" с усиленными границами, которая прибавляется к исходному изображение. 
   
 ```
-  public BufferedImage sharp(BufferedImage img, int repeat) throws IOException {
-      BufferedImage result = new BufferedImage(img.getWidth(), img.getHeight(), TYPE_INT_RGB);
-      GaussianBlur blur = new GaussianBlur();
-      for (int i = 0; i < repeat; i++) {
-          result = sum(img, diff(img, blur.process(img)));
-          img.setData(result.getData());
-          save(result, "result/sharp", "result" + i, FORMAT);
-      }
-      return result;
-  }
+  public BufferedImage blur(BufferedImage picture, int steps) throws IOException {
+        BufferedImage result = new BufferedImage(picture.getWidth(), picture.getHeight(), TYPE_INT_RGB);
+        GaussBlur gblur = new GaussBlur();
+        for (int i = 0; i < steps; i++) {
+            result = sum(picture, diff(picture, gblur.process(picture)));
+            picture.setData(result.getData());
+            save(result, "result/sharp", "result" + i, FORMAT);
+        }
+        return result;
+    }
       
                                  
 ```
 
-Step0 | Step1 | Step2 | Step3 | Step4
+Step1 | Step2 | Step3 | Step4 | Step5
 ------ | ------|----------| ------|----------
 <img src="resources/sharp/result0.jpg" width="500"/>    |  <img src="resources/sharp/result0.jpg" width="500"/>   |  <img src="resources/sharp/result2.jpg" width="500"/> | <img src="resources/sharp/result3.jpg" width="500"/> | <img src="resources/sharp/result4.jpg" width="500"/>
                                 
@@ -43,12 +49,12 @@ Step0 | Step1 | Step2 | Step3 | Step4
    Здесь используется размытие по Гауссу, но вычитание размытой версии из исходного изображения происходит взвешенным образом.
   
 ```
-    private void weighted(BufferedImage img) throws IOException {
-        Mat blurred = new Mat();
-        Imgproc.GaussianBlur(img2Mat(img), blurred, new Size(0, 0), 3);
-        Mat weighted = blurred.clone();
-        Core.addWeighted(blurred, 1.5, weighted, -0.5, 0, weighted);
-        BufferedImage result = (BufferedImage) HighGui.toBufferedImage(weighted);
+    private void weighted(BufferedImage picture) throws IOException {
+        Mat blurredOpenCV = new Mat();
+        Imgproc.GaussianBlur(img2Mat(picture), blurredOpenCV, new Size(0, 0), 3);
+        Mat weightedOpenCV = blurredOpenCV.clone();
+        Core.addWeighted(blurredOpenCV, 1.5, weightedOpenCV, -0.5, 0, weightedOpenCV);
+        BufferedImage result = (BufferedImage) HighGui.toBufferedImage(weightedOpenCV);
         save(result, "result/weighted", "result", FORMAT);
     }
   
@@ -62,13 +68,13 @@ Step0 | Step1 | Step2 | Step3 | Step4
 
 ```
   
-    private void kernel(BufferedImage img) throws IOException {
-        Mat kernel = new Mat(3, 3, CvType.CV_16SC1);
-        kernel.put(0, 0, 0, -1, 0, -1, 5, -1, 0, -1, 0);
-        Mat sharped = new Mat();
-        Imgproc.filter2D(img2Mat(img), sharped, -1, kernel);
-        BufferedImage result = (BufferedImage) HighGui.toBufferedImage(sharped);
-        save(result, "result/kernel", "result", FORMAT);
+   private void convMatr(BufferedImage picture) throws IOException {
+        Mat convMatrOpenCV = new Mat(3, 3, CvType.CV_16SC1);
+        convMatrOpenCV.put(0, 0, 0, -1, 0, -1, 5, -1, 0, -1, 0);
+        Mat sharpedOpenCV = new Mat();
+        Imgproc.filter2D(img2Mat(picture), sharpedOpenCV, -1, convMatrOpenCV);
+        BufferedImage result = (BufferedImage) HighGui.toBufferedImage(sharpedOpenCV);
+        save(result, "result/convMatr", "result", FORMAT);
     }
   
 ```
