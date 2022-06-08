@@ -214,23 +214,23 @@ public void colorLocus(BufferedImage picture) throws IOException {
     private static double[] RGBtoHSV(int r, int g, int b) {
         List<Integer> arr = Arrays.asList(r, g, b);
         double min = Collections.min(arr);
-        double v = Collections.max(arr);
-        double s;
-        if (v == 0) {
-            s = 0;
+        double value = Collections.max(arr);
+        double saturation;
+        if (value == 0) {
+            saturation = 0;
         } else {
-            s = 1 - min / v;
+            saturation = 1 - min / value;
         }
-        double h = 0;
-        if (v == r) {
-            h = 60 * (g - b) / (v - min);
-        } else if (v == g) {
-            h = 60 * (b - r) / (v - min) + 120;
-        } else if (v == b) {
-            h = 60 * (r - g) / (v - min) + 240;
+        double hue = 0;
+        if (value == r) {
+            hue = 60 * (g - b) / (value - min);
+        } else if (value == g) {
+            hue = 60 * (b - r) / (value - min) + 120;
+        } else if (value == b) {
+            hue = 60 * (r - g) / (value - min) + 240;
         }
-        if (h < 0) h += 360;
-        return new double[]{h / 2, s * 255, v * 255};
+        if (hue < 0) hue += 360;
+        return new double[]{hue / 2, saturation * 255, value};
     }
 ```
 Custom | OpenCV | difference
