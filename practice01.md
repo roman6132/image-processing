@@ -51,8 +51,6 @@ public BufferedImage bayeriz(BufferedImage bufferedImage) throws IOException {
 <img src="resources/picture.jpg" width="500"/>
 <img src="resources/kernel/bayer.png" width="500"/>
 
-5. Выбор изображения для работы
-  C https://www.signatureedits.com/free-raw-photos/
   
 6. Реализация суперпикселей. 
 ```
