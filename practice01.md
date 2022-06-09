@@ -69,7 +69,7 @@ public void superPixel(BufferedImage bufferedImage) throws IOException {
         save(result, "result/superPixel", "res", "png");
     }
 ```
-<img src="resources/super.jpg" width="500"/>
+<img src="resources/super1.jpg" width="500"/>
 7. Реализация билинейной интерполяции.
 
 ```
@@ -126,7 +126,7 @@ public BufferedImage biLinear(BufferedImage bufferedImage) throws IOException {
     }
 ```
 
-<img src="resources/int.jpg" width="500"/>
+<img src="resources/interp.png" width="500"/>
 
 8. Реализация алгоритма VNG.
 ```
@@ -248,4 +248,4 @@ public void vng(BufferedImage bufferedImage) throws IOException {
     }
 ```
 
-<img src="resources/vng.jpg" width="500"/>
+<img src="resources/res1.jpg" width="500"/>
