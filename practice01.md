@@ -54,55 +54,198 @@ public BufferedImage bayeriz(BufferedImage bufferedImage) throws IOException {
   
 6. Реализация суперпикселей. 
 ```
-import cv2
-import numpy as np
-img = cv2.imread("sp.jpg")
-region_size=18
-ruler = 20.0
-slic = cv2.ximgproc.createSuperpixelSLIC(img,region_size,ruler)
-slic.iterate(10) 
-mask_slic = slic.getLabelContourMask() 
-label_slic = slic.getLabels() 
-number_slic = slic.getNumberOfSuperpixels() 
-mask_inv_slic = cv2.bitwise_not(mask_slic)
-img_slic = cv2.bitwise_and(img,img,mask_inv_slic) 
-cv2.imshow("img_slic",img_slic)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+public void superPixel(BufferedImage bufferedImage) throws IOException {
+        BufferedImage result = new BufferedImage(bufferedImage.getWidth() / 2, bufferedImage.getHeight() / 2, TYPE_INT_RGB);
+        IntStream.range(0, result.getHeight()).forEach (y ->
+                IntStream.range(0, result.getWidth()).forEach ( x -> {
+                    int r = alpha(bufferedImage.getRGB(x * 2, y * 2));
+                    int g = (alpha(bufferedImage.getRGB(x * 2 + 1, y * 2)) +
+                            alpha(bufferedImage.getRGB(x * 2, y * 2 + 1))) / 2;
+                    int b = alpha(bufferedImage.getRGB(x * 2 + 1, y * 2 + 1));
+                    result.setRGB(x, y, color(r,g,b));
+                }   )
+        );
+
+        save(result, "result/superPixel", "res", "png");
+    }
 ```
 <img src="resources/super.jpg" width="500"/>
 7. Реализация билинейной интерполяции.
 
 ```
-def BLI(img,height,width):
-    scrH,scrW,_=img.shape
-    img=np.pad(img,((0,1),(0,1),(0,0)),'constant')
-    retimg=np.zeros((height,width,3),np.uint8)
-    for i in range(height):
-        for j in range(width):
-            scrx=(i+1)*(scrH/height)-1
-            scry=(j+1)*(scrW/width)-1
-	    
-            x=math.floor(scrx)
-            y=math.floor(scry)
-	    
-            u=scrx-x
-            v=scry-y
-            retimg[i,j]=(1-u)*(1-v)*img[x,y]+u*(1-v)*img[x+1,y]+(1-u)*v*img[x,y+1]+u*v*img[x+1,y+1]
-    return retimg
+public BufferedImage biLinear(BufferedImage bufferedImage) throws IOException {
+        BufferedImage result = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), TYPE_INT_RGB);
+
+        IntStream.range(1, result.getHeight() - 1).forEach(  y ->
+                IntStream.range(1, result.getWidth() - 1).forEach( x -> {
+            if (y % 2 == 0) { //rows 0 and 2
+                if (x % 2 == 0) { //only red
+                    int r = alpha(bufferedImage.getRGB(x, y));
+                    int g = (alpha(bufferedImage.getRGB(x, y - 1)) +
+                            alpha(bufferedImage.getRGB(x + 1, y)) +
+                            alpha(bufferedImage.getRGB(x, y + 1)) +
+                            alpha(bufferedImage.getRGB(x - 1, y))) / 4;
+                    int b = (alpha(bufferedImage.getRGB(x - 1, y - 1)) +
+                            alpha(bufferedImage.getRGB(x + 1, y - 1)) +
+                            alpha(bufferedImage.getRGB(x - 1, y + 1)) +
+                            alpha(bufferedImage.getRGB(x + 1, y + 1))) / 4;
+                    result.setRGB(x, y, color(r, g, b));
+                } else { //only green
+                    int r = (alpha(bufferedImage.getRGB(x - 1, y)) +
+                            alpha(bufferedImage.getRGB(x + 1, y))) / 2;
+                    int g = alpha(bufferedImage.getRGB(x, y));
+                    int b = (alpha(bufferedImage.getRGB(x, y - 1)) +
+                            alpha(bufferedImage.getRGB(x, y + 1))) / 2;
+                    result.setRGB(x, y, color(r, g, b));
+                }
+            } else { //rows 1 and 3
+                if (x % 2 == 0) { //only green
+                    int r = (alpha(bufferedImage.getRGB(x, y - 1)) +
+                            alpha(bufferedImage.getRGB(x, y + 1))) / 2;
+                    int g = alpha(bufferedImage.getRGB(x, y));
+                    int b = (alpha(bufferedImage.getRGB(x - 1, y)) +
+                            alpha(bufferedImage.getRGB(x + 1, y))) / 2;
+                    result.setRGB(x, y, color(r, g, b));
+                } else { //only blue
+                    int r = (alpha(bufferedImage.getRGB(x - 1, y - 1)) +
+                            alpha(bufferedImage.getRGB(x + 1, y - 1)) +
+                            alpha(bufferedImage.getRGB(x - 1, y + 1)) +
+                            alpha(bufferedImage.getRGB(x + 1, y + 1))) / 4;
+                    int g = (alpha(bufferedImage.getRGB(x, y - 1)) +
+                            alpha(bufferedImage.getRGB(x + 1, y)) +
+                            alpha(bufferedImage.getRGB(x, y + 1)) +
+                            alpha(bufferedImage.getRGB(x - 1, y))) / 4;
+                    int b = alpha(bufferedImage.getRGB(x, y));
+                    result.setRGB(x, y, color(r, g, b));
+                }
+            }
+                })
+        );
+        save(result, "result/interp", "interpres", "png");
+        return result;
+    }
 ```
 
 <img src="resources/int.jpg" width="500"/>
 
 8. Реализация алгоритма VNG.
 ```
-import cv2
-import matplotlib.pyplot as plt
-bayer = cv2.imread(r'vng.tif', -1)
-fig = plt.figure(figsize=(8,8))
-plt.imshow(bayer, cmap='gray')
-plt.title('Input Image')
-plt.show()
+public void vng(BufferedImage bufferedImage) throws IOException {
+        BufferedImage result = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), TYPE_INT_RGB);
+        List<Integer> xPattern = Arrays.asList(1,3,5,7);
+        List<Integer> colPattern = Arrays.asList(0,4);
+        List<Integer> rowPattern = Arrays.asList(2,6);
+        List<Integer> plusPattern = Arrays.asList(0,2,4,6);
+
+        IntStream.range(2, result.getHeight() - 2).forEach( y ->
+                IntStream.range(2, result.getWidth() - 2).forEach (x ->{
+                    try {
+                        int[][] gr = {
+                                {bufferedImage.getRGB(x, y - 1), bufferedImage.getRGB(x, y - 2),
+                                        bufferedImage.getRGB(x + 1, y - 2)},
+                                {bufferedImage.getRGB(x + 1, y - 1), bufferedImage.getRGB(x + 2, y - 2),
+                                        bufferedImage.getRGB(x + 2, y - 1)},
+                                {bufferedImage.getRGB(x + 1, y), bufferedImage.getRGB(x + 2, y),
+                                        bufferedImage.getRGB(x + 2, y + 1)},
+                                {bufferedImage.getRGB(x + 1, y + 1), bufferedImage.getRGB(x + 2, y + 2),
+                                        bufferedImage.getRGB(x + 1, y + 2)},
+                                {bufferedImage.getRGB(x, y + 1), bufferedImage.getRGB(x, y + 2),
+                                        bufferedImage.getRGB(x - 1, y + 2)},
+                                {bufferedImage.getRGB(x - 1, y + 1), bufferedImage.getRGB(x - 2, y + 2),
+                                        bufferedImage.getRGB(x - 2, y + 1)},
+                                {bufferedImage.getRGB(x - 1, y), bufferedImage.getRGB(x - 2, y),
+                                        bufferedImage.getRGB(x - 2, y - 1)},
+                                {bufferedImage.getRGB(x - 1, y - 1), bufferedImage.getRGB(x - 2, y - 2),
+                                        bufferedImage.getRGB(x - 1, y - 2)}
+                        };
+                        int threshold = 0;
+                        for(int i1 = 0; i1<gr.length;i1++){
+                            for (int j1 = 0; j1<gr[0].length; j1++){
+                                threshold +=alpha(gr[i1][j1]);
+                            }
+                        }
+                        threshold /= 19;
+                        List<Integer> red = new ArrayList<>();
+                        List<Integer> green = new ArrayList<>();
+                        List<Integer> blue = new ArrayList<>();
+
+                        if (y % 2 == 0) {
+                            if (x % 2 == 0) {
+                                red.add(alpha(bufferedImage.getRGB(x, y)));
+                            } else { //only green
+                                green.add(alpha(bufferedImage.getRGB(x, y)));
+                            }
+                        } else {
+                            if (x % 2 == 0) {
+                                green.add(alpha(bufferedImage.getRGB(x, y)));
+                            } else {
+                                blue.add(alpha(bufferedImage.getRGB(x, y)));
+                            }
+                        }
+
+                        for (int i=0;i<gr.length;i++) {
+                            int grVar = 0;
+                            for (int j = 0; j < gr[i].length; j++) {
+                                grVar += alpha(gr[i][j]);
+                            }
+                            if(grVar/gr[i].length <= threshold)
+                            {
+                                if (y % 2 == 0) { //rows 0 and 2
+                                    if (x % 2 == 0)  { //X blue, + green\
+                                        if(xPattern.contains(i)){blue.add(alpha(gr[i][0]));}
+                                        else
+                                        if(plusPattern.contains(i)){green.add(alpha(gr[i][0]));}
+
+                                    } else  { // | blue, -- red, X green
+
+                                        if(colPattern.contains(i)){blue.add(alpha(gr[i][0]));}
+                                        else
+
+                                        if(rowPattern.contains(i)){red.add(alpha(gr[i][0]));}
+                                        else
+                                        if(xPattern.contains(i)){green.add(alpha(gr[i][0]));}
+
+                                    }
+                                } else { //rows 1 and 3
+                                    if (x % 2 == 0)  { // | red, -- blue, X green
+                                        if(colPattern.contains(i)){red.add(alpha(gr[i][0]));}
+                                        else
+                                        if(rowPattern.contains(i)){blue.add(alpha(gr[i][0]));}
+                                        else
+                                        if(xPattern.contains(i)){green.add(alpha(gr[i][0]));}
+
+                                    } else  { // X red, + green
+                                        if(xPattern.contains(i)){red.add(alpha(gr[i][0]));}
+                                        else
+                                        if(plusPattern.contains(i)){green.add(alpha(gr[i][0]));}
+
+                                    }
+                                }
+                            }
+                        }
+                        int r,g,b;
+                        if (red.size() == 0) r=0;
+                        else {
+                            r= sumRGB(red) / red.size();
+                        }
+                        if (green.size() == 0) g=0;
+                        else {
+                            g= sumRGB(green) / green.size();
+                        }
+                        if (blue.size() == 0) b=0;
+                        else {
+                            b= sumRGB(blue) / blue.size();
+                        }
+
+                        result.setRGB(x, y, color(r, g, b));
+
+                    } catch (Exception e){
+                        result.setRGB(x, y, color(4,244,4));
+                    }
+                })
+        );
+        save(result, "result/vng", "res", "jpg");
+    }
 ```
 
 <img src="resources/vng.jpg" width="500"/>
