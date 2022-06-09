@@ -126,7 +126,7 @@ public BufferedImage biLinear(BufferedImage bufferedImage) throws IOException {
     }
 ```
 
-<img src="resources/interp.png" width="500"/>
+<img src="resources/interp1.png" width="500"/>
 
 8. Реализация алгоритма VNG.
 ```
